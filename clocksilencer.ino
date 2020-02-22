@@ -6,8 +6,8 @@
 #include <WiFiUdp.h>
 #include <ESP32Servo.h>
 
-const char *ssid     = "TurboKombi";
-const char *password = "Jakuboslaw";
+const char *ssid     = "SSID";
+const char *password = "PASS";
 
 Servo myservo;  // create servo object to control a servo
 // 16 servo objects can be created on the ESP32
