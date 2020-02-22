@@ -40,8 +40,10 @@ void loop() {
   delay(1000);
  
   //TODO
-  // if time >20.00, check procedure time
-  // else move servo to 0
-  // procedure time if time <7.00.00 move servo to 0
+  // if time <8.00
+// Servo to 0 off
+//Else check procedure time
+  // procedure time
+// if time > 20.00 move servo to 0
   // else move servo to 90
 }
