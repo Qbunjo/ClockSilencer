@@ -37,10 +37,7 @@ void setup() {
 }
 
 void loop() {
-  timeClient.update();
-  tH=timeClient.getHours();
-  tM=timeClient.getMinutes();
-  t = (tH* 100) + tM; 
+  whatTime();
   Serial.println(t);
   delay(1000);
  
@@ -63,4 +60,9 @@ void sweetDreams(){
   if (tM=15){
     ESP.deepSleep (hour*1000000);
   }
+  void whatTime(){
+     timeClient.update();
+  tH=timeClient.getHours();
+  tM=timeClient.getMinutes();
+  t = (tH* 100) + tM; }
     
