@@ -44,6 +44,7 @@ void loop() {
   if (t >700 and t<1930){ //hours in format HHMM
     myservo.write(90);} //turn it on
   else {myservo.write(0)};
+Delay(5);
   sweetDreams();
 
 }
