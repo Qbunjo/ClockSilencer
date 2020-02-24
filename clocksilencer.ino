@@ -55,7 +55,7 @@ void sweetDreams(){
   if (tM <15){
     tDelta=(15-tM)*60;
   ESP.deepSleep((hour+tDelta)*1000000)}
-  if (tM=15){
+  if (tM==15){
     ESP.deepSleep (hour*1000000);
   }
   void whatTime(){
