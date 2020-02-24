@@ -15,6 +15,8 @@ Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 // Recommended PWM GPIO pins on the ESP32 include 2,4,12-19,21-23,25-27,32-33
 int servoPin = 18;
+int tDelta=0;
+int t=0,tH=0 tM=0;
 
 
 WiFiUDP ntpUDP;
@@ -35,8 +37,10 @@ void setup() {
 
 void loop() {
   timeClient.update();
-
-  Serial.println(timeClient.getFormattedTime());
+  tH=timeClient.getHours();
+  tM=timeClient.getMinutes();
+  t = tH* 100 + tM; 
+  Serial.println(t);
   delay(1000);
  
   //TODO
@@ -47,3 +51,15 @@ void loop() {
 // if time > 20.00 move servo to 0
   // else move servo to 90
 }
+void sweetDreams(){
+  if (tM >15){
+    tDelta=30-tM;
+    tDelta=15-tDelta;
+  deepsleep(hour-tDelta)}
+  if (tM <15){
+    tDelta=15-tM;
+  deepSleep(hour+tDelta)}
+  if (tM=15){
+    deepSleep (hour);
+  }
+    
