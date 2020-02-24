@@ -13,14 +13,15 @@ Servo myservo;  // create servo object to control a servo
 // 16 servo objects can be created on the ESP32
 
 int pos = 0;    // variable to store the servo position
-// Recommended PWM GPIO pins on the ESP32 include 2,4,12-19,21-23,25-27,32-33
 int servoPin = 18;
-int tDelta=0;
-int t=0,tH=0 tM=0;
+int tDelta=0; //this variable counts the possible variations of sleep clock, 
+//as we want the deepsleep to wake the device always at quarter past hour
+int t=0,tH=0 tM=0; 
+int hour=3600; //hour in seconds
 
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", hour, 60000);
 
 void setup() {
   Serial.begin(115200);
@@ -39,7 +40,7 @@ void loop() {
   timeClient.update();
   tH=timeClient.getHours();
   tM=timeClient.getMinutes();
-  t = tH* 100 + tM; 
+  t = (tH* 100) + tM; 
   Serial.println(t);
   delay(1000);
  
@@ -54,12 +55,12 @@ void loop() {
 void sweetDreams(){
   if (tM >15){
     tDelta=30-tM;
-    tDelta=15-tDelta;
-  deepsleep(hour-tDelta)}
+    tDelta=(15-tDelta)*60);
+  ESP.deepsleep((hour-tDelta)*1000000)}
   if (tM <15){
-    tDelta=15-tM;
-  deepSleep(hour+tDelta)}
+    tDelta=(15-tM)*60;
+  ESP.deepSleep((hour+tDelta)*1000000)}
   if (tM=15){
-    deepSleep (hour);
+    ESP.deepSleep (hour*1000000);
   }
     
