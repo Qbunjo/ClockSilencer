@@ -49,8 +49,7 @@ void loop() {
 }
 void sweetDreams(){
   if (tM >15){
-    tDelta=60-tM;
-    tDelta=(15-tDelta)*60);
+    tDelta=(tM-15)*60;
   ESP.deepsleep((hour-tDelta)*1000000)}
   if (tM <15){
     tDelta=(15-tM)*60;
