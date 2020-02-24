@@ -37,17 +37,15 @@ void setup() {
 }
 
 void loop() {
-  whatTime();
+  whatTime();// check on time
   Serial.println(t);
-  delay(1000);
  
-  //TODO
-  // if time <8.00
-// Servo to 0 off
-//Else check procedure time
-  // procedure time
-// if time > 20.00 move servo to 0
-  // else move servo to 90
+  // check if it should be on or off
+  if (t >700 and t<1930){ //hours in format HHMM
+    myservo.write(90);} //turn it on
+  else {myservo.write(0)};
+  sweetDreams();
+
 }
 void sweetDreams(){
   if (tM >15){
@@ -64,5 +62,6 @@ void sweetDreams(){
      timeClient.update();
   tH=timeClient.getHours();
   tM=timeClient.getMinutes();
-  t = (tH* 100) + tM; }
+  t = (tH* 100) + tM; 
+  }
     
