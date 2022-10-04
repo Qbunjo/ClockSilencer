@@ -11,5 +11,5 @@ Much more elegant solution is having another electronic clock, that plays record
 - SD card (a small one will be enough)
 
 ## Wiring:
-[![Fritzing ESP32 schema] (Untitled%20Sketch_bb.png)](Untitled%20Sketch_bb.png)
+[![Fritzing ESP32 schema](Untitled%20Sketch_bb.png)](Untitled%20Sketch_bb.png)
 
