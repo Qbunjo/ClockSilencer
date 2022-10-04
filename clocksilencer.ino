@@ -1,67 +1,87 @@
-#include <NTPClient.h>
-// change next line to use with another board/shield
+#include <ESP32Time.h>
 #include <WiFi.h>
-//#include <WiFi.h> // for WiFi shield
-//#include <WiFi101.h> // for WiFi 101 shield or MKR1000
-#include <WiFiUdp.h>
-#include <ESP32Servo.h>
+#include "HardwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
 
-const char *ssid     = "SSID";
+ESP32Time rtc;
+HardwareSerial hwSerial(1);
+DFRobotDFPlayerMini myDFPlayer;
+
+const char *ssid = "SSID";
 const char *password = "PASS";
-
-Servo myservo;  // create servo object to control a servo
-// 16 servo objects can be created on the ESP32
-
-int pos = 0;    // variable to store the servo position
-int servoPin = 18;
-int tDelta=0; //this variable counts the possible variations of sleep clock, 
-//as we want the deepsleep to wake the device always at quarter past hour
-int t=0,tH=0 tM=0; 
-int hour=3600; //hour in seconds
-
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", hour, 60000);
-
+bool noWifi;
+int myDow, mySec, myMin, myHour;
 void setup() {
   Serial.begin(115200);
-  myservo.attach(servoPin);
+  hwSerial.begin(9600, SERIAL_8N1, 16, 17); //second serial port to serve mp3 player
+  myDFPlayer.begin(hwSerial);//initializing mp3 player
+
   WiFi.begin(ssid, password);
+  Serial.println("Looking for the WiFi");
+  
 
-  while ( WiFi.status() != WL_CONNECTED ) {
-    delay ( 500 );
-    Serial.print ( "." );
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+      // if wifi found, break loop
+    }
+  Serial.println("WiFi connected");
+  //---------set with NTP---------------
+  configTime(3600, 3600, "europe.pool.ntp.org");
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo)) {
+    rtc.setTimeStruct(timeinfo);
   }
-
-  timeClient.begin();
+  Serial.println("Attempt to update RTC");
+  while (rtc.getYear() == 1970) {
+    Serial.println("RTC updating in progress");
+  } 
+ WiFi. disconnect();
+ WiFi.mode(WIFI_OFF); //disconnect after synchronisation to save power
+ Serial.println ("WiFi turned off");
+  //play chime when everything ready
+  myDFPlayer.volume(5);  //Set volume value. From 0 to 30
+  myDFPlayer.play(1);
+  delay(1000);
 }
+
 
 void loop() {
-  whatTime();// check on time
-  Serial.println(t);
- 
-  // check if it should be on or off
-  if (t >700 and t<1930){ //hours in format HHMM
-    myservo.write(90);} //turn it on
-  else {myservo.write(0)};
-Delay(5);
-  sweetDreams();
 
+  Serial.println(
+    rtc.getTimeDate(true)); //  (String) 15:24:38 Sunday, January 17 2021
+
+  myDow = rtc.getDayofWeek();
+  mySec = rtc.getSecond();
+  myMin = rtc.getMinute();
+  myHour = rtc.getHour(true);
+
+  if (mySec == 0 and myMin == 0) { //at full hour
+    if (myHour > 7 and myHour < 19) { //between 9 and 18
+      //here another condition
+      ringer(myHour);
+    }
+  }
+  if (mySec == 0 and myMin == 30) { //at half hour
+    if (myHour > 7 and myHour < 19) { //between 9 and 18
+      //here another condition
+      ringer(1);
+    }
+  }
+  struct tm timeinfo = rtc.getTimeStruct();
+  delay(1000);
 }
-void sweetDreams(){
-  if (tM >15){
-    tDelta=(tM-15)*60;
-  ESP.deepsleep((hour-tDelta)*1000000)}
-  if (tM <15){
-    tDelta=(15-tM)*60;
-  ESP.deepSleep((hour+tDelta)*1000000)}
-  if (tM==15){
-    ESP.deepSleep (hour*1000000);
+void ringer(int myhours2) {
+  Serial.print("Ringing:");
+  Serial.println(myhours2);
+  if (myhours2 > 12) {
+    myhours2 - 12;
   }
-  void whatTime(){
-     timeClient.update();
-  tH=timeClient.getHours();
-  tM=timeClient.getMinutes();
-  t = (tH* 100) + tM; 
+  myDFPlayer.volume(25);
+  for (int n = 1; n <= myhours2; n++) {
+    myDFPlayer.play(1); //ring the chime
+    Serial.print("Ring nr:");
+    Serial.println(n);
+    delay(2250);
   }
-    
+}
