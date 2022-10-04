@@ -77,9 +77,12 @@ void ringer(int myhours2) {
   if (myhours2 > 12) {
     myhours2 - 12;
   }
+ 
   myDFPlayer.volume(25);
   for (int n = 1; n <= myhours2; n++) {
-    myDFPlayer.play(1); //ring the chime
+    if(n==1){
+    myDFPlayer.play(1);} //ring the chime}
+    else{myDFPlayer.play(2);}
     Serial.print("Ring nr:");
     Serial.println(n);
     delay(2250);
