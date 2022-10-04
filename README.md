@@ -6,9 +6,9 @@ My first idea was to build a blocking mechanism inside the clock box, but it tur
 Much more elegant solution is having another electronic clock, that plays recorded chime on certain hours.
 
 ## Hardware:
-ESP32 WROOM
-DFPlayer mini
-SD card (a small one will be enough)
+- ESP32 WROOM
+- DFPlayer mini
+- SD card (a small one will be enough)
 
 ## Wiring:
 TODO
