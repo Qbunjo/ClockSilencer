@@ -10,6 +10,11 @@ Much more elegant solution is having another electronic clock, that plays record
 - DFPlayer mini
 - SD card (a small one will be enough)
 
+## Libraries:
+- ESP32Time - Runs built-in RTC
+- HardwareSerial - as DFPlayer is driven by Serial port, second serial must be set.
+- DFRobotDFPlayerMini - driver for DFPlayer Mini
+
 ## Wiring:
 [![Fritzing ESP32 schema](Untitled%20Sketch_bb.png)](Untitled%20Sketch_bb.png)
 
