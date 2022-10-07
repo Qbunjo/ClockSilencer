@@ -8,7 +8,7 @@ Much more elegant solution is having another electronic clock, that plays record
 ## Hardware:
 - ESP32 WROOM
 - DFPlayer mini
-- SD card (a small one will be enough)
+- micro SD card (a small one will be enough - 8gb or even less)
 
 ## Libraries:
 - ESP32Time - Runs built-in RTC
