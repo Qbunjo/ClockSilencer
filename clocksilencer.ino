@@ -47,7 +47,7 @@ void setup() {
     myDFPlayer.volume(5);  //Set volume value. From 0 to 30
     myDFPlayer.play(1);
   } else {
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3); //repair timezone
     tzset();}
 }
 
