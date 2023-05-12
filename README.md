@@ -13,7 +13,8 @@ Much more elegant solution is having another electronic clock, that plays record
 ## Libraries:
 - ESP32Time - Runs built-in RTC
 - HardwareSerial - as DFPlayer is driven by Serial port, second serial must be set.
-- DFRobotDFPlayerMini - driver for DFPlayer Mini
+- DFPlayerMini_Fast - driver for DFPlayer Mini, but not from DFRobot :)
+- FireTimer (dependency of DFPlayer library)
 
 ## Wiring:
 [![Fritzing ESP32 schema](Untitled%20Sketch_bb.png)](Untitled%20Sketch_bb.png)
