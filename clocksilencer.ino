@@ -44,18 +44,18 @@ void setup() {
     WiFi.mode(WIFI_OFF);  //disconnect after synchronisation to save power
     Serial.println("WiFi turned off");
     //play chime when everything ready
-    myDFPlayer.volume(5);  //Set volume value. From 0 to 30
+    myDFPlayer.volume(10);  //Set volume value. From 0 to 30
     myDFPlayer.play(1);
   } else {
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3); //repair timezone
-    tzset();}
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  //repair timezone
+    tzset();
+  }
 }
 
 
 void loop() {
 
-  Serial.println(
-    rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
+  Serial.println(rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
 
   myDow = rtc.getDayofWeek();
   mySec = rtc.getSecond();
@@ -75,9 +75,9 @@ void loop() {
     }
   }
   struct tm timeinfo = rtc.getTimeStruct();
-  esp_sleep_enable_timer_wakeup(500000); //in microseconds, but not the full second (1000000)
-  if (bootCount > 2147483645){
-    bootCount=2;// when bootcount approaches to integer max, reset it
+  esp_sleep_enable_timer_wakeup(500000);  //in microseconds, but not the full second (1000000)
+  if (bootCount > 2147483645) {
+    bootCount = 2;  // when bootcount approaches to integer max, reset it
   }
   Serial.println("Deepsleep");
   esp_deep_sleep_start();
@@ -88,8 +88,8 @@ void ringer(int myhours2) {
   if (myhours2 > 12) {
     myhours2 - 12;
   }
-  myDFPlayer.wakeUp();
-  myDFPlayer.volume(25);
+  //myDFPlayer.wakeUp();
+  myDFPlayer.volume(30);
   for (int n = 1; n <= myhours2; n++) {
     if (n == 1) {
       myDFPlayer.play(1);
@@ -99,5 +99,5 @@ void ringer(int myhours2) {
     Serial.println(n);
     delay(2250);
   }
-  myDFPlayer.sleep();
+  //myDFPlayer.sleep();
 }
