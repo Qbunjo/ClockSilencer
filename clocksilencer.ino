@@ -14,7 +14,7 @@ void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17);  //second serial port to serve mp3 player
    mp3.begin(hwSerial);  //initializing mp3 player
-  if (rtcTimeWasSetFromNTP==true) {
+  if (rtcTimeWasAlreadySetFromNTP==false) {
     WiFi.begin(ssid, password);
     Serial.println("Looking for the WiFi");
 
