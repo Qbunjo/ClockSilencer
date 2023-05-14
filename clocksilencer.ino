@@ -2,24 +2,19 @@
 #include <WiFi.h>
 #include "HardwareSerial.h"
 #include "DFPlayerMini_Fast.h"
-
 ESP32Time rtc;
 HardwareSerial hwSerial(1);
-DFPlayerMini_Fast myDFPlayer;
-
+DFPlayerMini_Fast mp3;
 const char *ssid = "SSID";
 const char *password = "PASS";
-RTC_DATA_ATTR int bootCount = 0;
+RTC_DATA_ATTR bool rtcTimeWasSetFromNTP = false;
 bool noWifi;
 int myDow, mySec, myMin, myHour;
 void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17);  //second serial port to serve mp3 player
-  ++bootCount;
-
-  myDFPlayer.begin(hwSerial);  //initializing mp3 player
-  Serial.println("Boot number: " + String(bootCount));
-  if (bootCount == 1) {
+   mp3.begin(hwSerial);  //initializing mp3 player
+  if (rtcTimeWasSetFromNTP==true) {
     WiFi.begin(ssid, password);
     Serial.println("Looking for the WiFi");
 
@@ -40,12 +35,18 @@ void setup() {
     while (rtc.getYear() == 1970) {
       Serial.println("RTC updating in progress");
     }
+    Serial.println("RTC update done");
+    rtcTimeWasSetFromNTP=true; //time was updated
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);  //disconnect after synchronisation to save power
     Serial.println("WiFi turned off");
     //play chime when everything ready
-    myDFPlayer.volume(10);  //Set volume value. From 0 to 30
-    myDFPlayer.play(1);
+    //mp3.volume(15);  //Set volume value. From 0 to 30
+    mp3.playbackSource(2);
+    mp3.play(3); //this does not work. dunno why
+    Serial.println("Play OK signal");
+    while (mp3.isPlaying()) { Serial.println("Playing!"); } //this also shows that no music is played.
+    
   } else {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  //repair timezone
     tzset();
@@ -76,28 +77,24 @@ void loop() {
   }
   struct tm timeinfo = rtc.getTimeStruct();
   esp_sleep_enable_timer_wakeup(500000);  //in microseconds, but not the full second (1000000)
-  if (bootCount > 2147483645) {
-    bootCount = 2;  // when bootcount approaches to integer max, reset it
-  }
   Serial.println("Deepsleep");
   esp_deep_sleep_start();
+  //delay(1000);
 }
 void ringer(int myhours2) {
+  if (myhours2 > 12) {
+    myhours2=myhours2 - 12;
+  }
   Serial.print("Ringing:");
   Serial.println(myhours2);
-  if (myhours2 > 12) {
-    myhours2 - 12;
-  }
-  //myDFPlayer.wakeUp();
-  myDFPlayer.volume(30);
+  mp3.volume(27);
   for (int n = 1; n <= myhours2; n++) {
     if (n == 1) {
-      myDFPlayer.play(1);
+      mp3.play(1);
     }  //ring the chime}
-    else { myDFPlayer.play(2); }
+    else { mp3.play(2); }
     Serial.print("Ring nr:");
     Serial.println(n);
     delay(2250);
   }
-  //myDFPlayer.sleep();
 }
