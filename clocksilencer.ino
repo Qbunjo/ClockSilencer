@@ -7,7 +7,7 @@ HardwareSerial hwSerial(1);
 DFPlayerMini_Fast mp3;
 const char *ssid = "SSID";
 const char *password = "PASS";
-RTC_DATA_ATTR bool rtcTimeWasSetFromNTP = false;
+RTC_DATA_ATTR bool rtcTimeWasAlreadySetFromNTP = false;
 bool noWifi;
 int myDow, mySec, myMin, myHour;
 void setup() {
@@ -36,7 +36,7 @@ void setup() {
       Serial.println("RTC updating in progress");
     }
     Serial.println("RTC update done");
-    rtcTimeWasSetFromNTP=true; //time was updated
+    rtcTimeWasAlreadySetFromNTP=true; //time was updated
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);  //disconnect after synchronisation to save power
     Serial.println("WiFi turned off");
@@ -83,7 +83,7 @@ void loop() {
 }
 void ringer(int myhours2) {
   if (myhours2 > 12) {
-    myhours2=myhours2 - 12;
+    myhours2 -= 12;
   }
   Serial.print("Ringing:");
   Serial.println(myhours2);
