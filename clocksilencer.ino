@@ -77,6 +77,8 @@ void loop() {
   delay(1000);
 }
 void ringer(int myhours2) {
+  //run mosfet here
+  digitalWrite(10,1);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17); 
   myDFPlayer.begin(hwSerial);//initializing mp3 player
  
@@ -95,6 +97,10 @@ void ringer(int myhours2) {
     Serial.println(n);
     delay(2250);
   }
+  ~myDFPlayer.begin();
+  ~hwSerial.begin();
+  digitalWrite(10,0);
+
 }
 void deepsleep(){
 esp_sleep_enable_timer_wakeup(1500*100000);
