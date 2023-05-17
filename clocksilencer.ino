@@ -54,8 +54,9 @@ void loop() {
   myMin = rtc.getMinute();
   myHour = rtc.getHour(true);
 
- if ((myMin <25) or (myMin >30 and myMin <55)){
-   deepsleep();
+ if ((59-myMin >5) or (29-myMin >5)){
+ //Here count the timeof sleep 
+   deepsleep(myMin-2);
  }
 
  
@@ -102,8 +103,8 @@ void ringer(int myhours2) {
   digitalWrite(10,0);
 
 }
-void deepsleep(){
-esp_sleep_enable_timer_wakeup(1500*100000);
+void deepsleep(int mytime){
+esp_sleep_enable_timer_wakeup(mytime*100000);
 Serial.println("Deepsleep");
 esp_deep_sleep_start();
 }
