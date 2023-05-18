@@ -93,7 +93,7 @@ void ringer(int myhours2) {
     Serial.println(n);
     delay(2250);
   }
-  ~myDFPlayer.begin();
+  ~myDFPlayer.begin(); //wondering if it's really necessary here, as we cut the power anyway
   ~hwSerial.begin();
   digitalWrite(12,0);
 
