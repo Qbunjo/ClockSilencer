@@ -41,11 +41,7 @@ void setup() {
     tzset();
   }
 }
-
-
 void loop() {
-
-
   Serial.println(
     rtc.getTimeDate(true)); //  (String) 15:24:38 Sunday, January 17 2021
 
@@ -56,10 +52,9 @@ void loop() {
 
  if ((59-myMin >5) or (29-myMin >5)){
  //Here count the timeof sleep 
-   deepsleep(myMin-2);
+   deepsleep();
  }
 
- 
   if (mySec == 0 and myMin == 0) { //at full hour
     if (myHour > 7 and myHour < 19) { //between 9 and 18
       //here another condition
@@ -79,7 +74,7 @@ void loop() {
 }
 void ringer(int myhours2) {
   //run mosfet here
-  digitalWrite(10,1);
+  digitalWrite(12,1); //mosfet
   hwSerial.begin(9600, SERIAL_8N1, 16, 17); 
   myDFPlayer.begin(hwSerial);//initializing mp3 player
  
@@ -100,11 +95,17 @@ void ringer(int myhours2) {
   }
   ~myDFPlayer.begin();
   ~hwSerial.begin();
-  digitalWrite(10,0);
+  digitalWrite(12,0);
 
 }
-void deepsleep(int mytime){
-esp_sleep_enable_timer_wakeup(mytime*100000);
+void deepsleep(){
+  int napTime;
+  if (myMin<30){
+  napTime==myMin;
+  } else {
+    napTime=myMin-30;
+  }
+esp_sleep_enable_timer_wakeup(napTime*100000);//in microseconds
 Serial.println("Deepsleep");
 esp_deep_sleep_start();
 }
