@@ -12,10 +12,11 @@ const char *password = "PASS";
 RTC_DATA_ATTR bool rtcTimeWasAlreadySetFromNTP = false;
 bool noWifi;
 int myDow, mySec, myMin, myHour;
+int sleepHelper;
 void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16,
-                 17); // second serial port to serve mp3 player
+                 17);  // second serial port to serve mp3 player
   if (rtcTimeWasAlreadySetFromNTP == false) {
     WiFi.begin(ssid, password);
     Serial.println("Looking for the WiFi");
@@ -36,51 +37,59 @@ void setup() {
       Serial.println("RTC updating in progress");
     }
     WiFi.disconnect();
-    WiFi.mode(WIFI_OFF); // disconnect after synchronisation to save power
-    rtcTimeWasAlreadySetFromNTP = true; // time was updated
+    WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
+    rtcTimeWasAlreadySetFromNTP = true;  // time was updated
     Serial.println("WiFi turned off");
   } else {
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3); // repair timezone
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
     tzset();
   }
 }
+
+
 void loop() {
+
+
   Serial.println(
-      rtc.getTimeDate(true)); //  (String) 15:24:38 Sunday, January 17 2021
+    rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
 
   myDow = rtc.getDayofWeek();
   mySec = rtc.getSecond();
   myMin = rtc.getMinute();
   myHour = rtc.getHour(true);
+  if (myMin > 31) {
+    sleepHelper = myMin - 30;
+  } else {
+    sleepHelper = myMin;
+  };
 
-  if ((59 - myMin > 5) or (29 - myMin > 5)) {
-    // Here count the timeof sleep
-    deepsleep();
-  }
 
-  if (mySec == 0 and myMin == 0) {    // at full hour
-    if (myHour > 7 and myHour < 19) { // between 9 and 18
+
+  if (mySec == 0 and myMin == 0) {     // at full hour
+    if (myHour > 7 and myHour < 19) {  // between 9 and 18
       // here another condition
       ringer(myHour);
     }
   }
-  if (mySec == 0 and myMin == 30) {   // at half hour
-    if (myHour > 7 and myHour < 19) { // between 9 and 18
+  if (mySec == 0 and myMin == 30) {    // at half hour
+    if (myHour > 7 and myHour < 19) {  // between 9 and 18
       // here another condition
       ringer(1);
     }
   }
 
   struct tm timeinfo = rtc.getTimeStruct();
-
-  delay(1000);
+  if ((sleepHelper > 2)) {
+    deepsleep(sleepHelper);
+  }
+  //delay(1000);
 }
 void ringer(int myhours2) {
-  // run mosfet here
-  digitalWrite(12, 1); // mosfet
+  //run mosfet here
+  digitalWrite(23, 1023);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17);
-  myDFPlayer.begin(hwSerial); // initializing mp3 player
-
+  myDFPlayer.begin(hwSerial);  //initializing mp3 player
+  delay(500);// wait for the player to wake
   Serial.print("Ringing:");
   Serial.println(myhours2);
   if (myhours2 > 12) {
@@ -91,7 +100,7 @@ void ringer(int myhours2) {
   for (int n = 1; n <= myhours2; n++) {
     if (n == 1) {
       myDFPlayer.play(1);
-    } // ring the chime}
+    }  // ring the chime}
     else {
       myDFPlayer.play(2);
     }
@@ -99,20 +108,10 @@ void ringer(int myhours2) {
     Serial.println(n);
     delay(2250);
   }
-  ~myDFPlayer.begin(); // wondering if it's really necessary here, as we cut the
-                       // power anyway
-  ~hwSerial.begin();
-  digitalWrite(12, 0);
+  digitalWrite(23, 0);
 }
-void deepsleep() {
-  int napTime;
-  if (myMin < 30) {
-    napTime == myMin;
-  } else {
-    napTime = myMin - 30;
-  }
-  esp_sleep_enable_timer_wakeup(napTime * 100000); // in microseconds
+void deepsleep(int sleepHelper) {
+  esp_sleep_enable_timer_wakeup((sleepHelper - 1) * 100000);
   Serial.println("Deepsleep");
-  Serial.print("Wake up in " + napTime + "minutes");
   esp_deep_sleep_start();
 }
