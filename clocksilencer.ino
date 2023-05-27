@@ -26,7 +26,6 @@ void setup() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
     tzset();
   }
-  
 }
 
 void loop() {
@@ -45,20 +44,20 @@ void loop() {
     sleepHelper = 29 - myMin;
   };
   if (mySec == 0 and myMin == 0) {     // at full hour
-    if (myHour > 7 and myHour < 19) {  // between 9 and 18
+    if (myHour > 7 and myHour < 19) {  // between 8 and 18
       // here another condition
       ringer(myHour);
     }
   }
   if (mySec == 0 and myMin == 30) {    // at half hour
-    if (myHour > 7 and myHour < 19) {  // between 9 and 18
+    if (myHour > 7 and myHour < 19) {  // between 8 and 18
       // here another condition
       ringer(1);
     }
   }
-  //if (mySec % 20 == 0) {  // for debugging purposes
-  //  ringer(1);
-  //}
+  if (mySec == 50 and myMin == 55) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
+    startPlayer();
+  }
 
 
   struct tm timeinfo = rtc.getTimeStruct();
@@ -69,16 +68,7 @@ void loop() {
 }
 void ringer(int myhours2) {
   //run mosfet here
-  digitalWrite(4, HIGH);
-  Serial.println("mosfet high");
-
-  hwSerial.begin(9600, SERIAL_8N1, 16, 17);
-  delay(10);
-  myDFPlayer.begin(hwSerial);  //initializing mp3 player
-  myDFPlayer.volume(25);
-  delay(10);
-  
-
+ 
   Serial.print("Ringing:");
   Serial.println(myhours2);
   if (myhours2 > 12) {
@@ -88,55 +78,66 @@ void ringer(int myhours2) {
     Serial.print("Ring nr:");
     Serial.println(n);
     if (n == 1) {
-
-
-      myDFPlayer.play(2);
+      myDFPlayer.playFromMP3Folder(1);
       delay(2250);
     }  // ring the chime
     else {
-      myDFPlayer.play(3);
+      myDFPlayer.playFromMP3Folder(2);
       delay(2250);
+      
     }
+    while (myDFPlayer.isPlaying()) {
+    };
+    digitalWrite(4, LOW);
+    Serial.println("Mosfet low");
   }
-  if (myDFPlayer.isPlaying()){
+  }
+  void deepsleep(int sleepHelper) {
+    int countMicro = ((sleepHelper - 1) * 1000000 * 60);
+    esp_sleep_enable_timer_wakeup(countMicro);
+    Serial.println("Deepsleep");
+    Serial.print("Wake up in: ");
+    Serial.print(sleepHelper);
+    Serial.print(" minutes, at ");
+    Serial.print(myHour);
+    Serial.print(":");
+    Serial.println(myMin += sleepHelper);
+    esp_deep_sleep_start();
+  }
+  void synchroniseTime() {
+    WiFi.begin(ssid, password);
+    Serial.println("Looking for the WiFi");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+      // if wifi found, break loop
+    }
+    Serial.println("WiFi connected");
+    //---------set with NTP---------------
+    configTime(3600, 3600, "europe.pool.ntp.org");
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+      rtc.setTimeStruct(timeinfo);
+    }
+    Serial.println("Attempt to update RTC");
+    while (rtc.getYear() == 1970) {
+      Serial.println("RTC updating in progress");
+    }
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
+    rtcTimeWasAlreadySetFromNTP = true;  // time was updated
+    Serial.println("WiFi turned off");
+  }
+  void startPlayer(){
+     digitalWrite(4, HIGH);
+  Serial.println("Mosfet high");
 
-  };
-  digitalWrite(4, LOW);
-  Serial.println("Mosfet low");
-}
-void deepsleep(int sleepHelper) {
-  int countMicro = ((sleepHelper - 1) * 1000000 * 60);
-  esp_sleep_enable_timer_wakeup(countMicro);
-  Serial.println("Deepsleep");
-  Serial.print("Wake up in: ");
-  Serial.print(sleepHelper);
-  Serial.print(" minutes, at ");
-  Serial.print(myHour);
-  Serial.print(":");
-  Serial.println(myMin += sleepHelper);
-  esp_deep_sleep_start();
-}
-void synchroniseTime() {
-  WiFi.begin(ssid, password);
-  Serial.println("Looking for the WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-    // if wifi found, break loop
+  hwSerial.begin(9600, SERIAL_8N1, 16, 17);
+  Serial.println("Hardware Serial started");
+  delay(100);
+  while (!myDFPlayer.begin(hwSerial)) {
+
+  };  //initializing mp3 player
+  myDFPlayer.volume(25);
+  delay(10);
   }
-  Serial.println("WiFi connected");
-  //---------set with NTP---------------
-  configTime(3600, 3600, "europe.pool.ntp.org");
-  struct tm timeinfo;
-  if (getLocalTime(&timeinfo)) {
-    rtc.setTimeStruct(timeinfo);
-  }
-  Serial.println("Attempt to update RTC");
-  while (rtc.getYear() == 1970) {
-    Serial.println("RTC updating in progress");
-  }
-  WiFi.disconnect();
-  WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
-  rtcTimeWasAlreadySetFromNTP = true;  // time was updated
-  Serial.println("WiFi turned off");
-}
