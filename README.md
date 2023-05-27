@@ -9,6 +9,7 @@ Much more elegant solution is having another electronic clock, that plays record
 - ESP32 WROOM
 - DFPlayer mini
 - micro SD card (a small one will be enough - 8gb or even less)
+- MOSFET transistor (it turns out that DFPlayer is power-hungry even if it sleeps, so it's better to cut its power)
 
 ## Libraries:
 - ESP32Time - Runs built-in RTC
