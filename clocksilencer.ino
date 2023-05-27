@@ -30,7 +30,7 @@ void setup() {
 
 void loop() {
 
-  Serial.print("It is:");
+  Serial.print("It is ");
   Serial.println(
     rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
 
@@ -55,7 +55,7 @@ void loop() {
       ringer(1);
     }
   }
-  if (mySec == 50 and myMin == 55) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
+  if (mySec == 50 and myMin == 59) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
     startPlayer();
   }
 
@@ -82,7 +82,7 @@ void ringer(int myhours2) {
       delay(2250);
     }  // ring the chime
     else {
-      myDFPlayer.playFromMP3Folder(2);
+      myDFPlayer.playAdvertisement(2);
       delay(2250);
       
     }
@@ -96,7 +96,7 @@ void ringer(int myhours2) {
     int countMicro = ((sleepHelper - 1) * 1000000 * 60);
     esp_sleep_enable_timer_wakeup(countMicro);
     Serial.println("Deepsleep");
-    Serial.print("Wake up in: ");
+    Serial.print("Wake up in ");
     Serial.print(sleepHelper);
     Serial.print(" minutes, at ");
     Serial.print(myHour);
