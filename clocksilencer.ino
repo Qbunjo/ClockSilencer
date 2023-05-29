@@ -20,12 +20,12 @@ void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16,
                  17);  // second serial port to serve mp3 player
-  if (rtcTimeWasAlreadySetFromNTP == false) {
+  //if (rtcTimeWasAlreadySetFromNTP == false) {
     synchroniseTime();
-  } else {
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
-    tzset();
-  }
+  //} else {
+  //  setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
+  // tzset();
+  //}
 }
 
 void loop() {
