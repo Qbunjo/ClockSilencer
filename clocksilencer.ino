@@ -3,6 +3,7 @@
 #include "HardwareSerial.h"
 #include <ESP32Time.h>
 #include <WiFi.h>
+//#include external rtc ds3231
 
 
 ESP32Time rtc;
@@ -20,12 +21,16 @@ void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16,
                  17);  // second serial port to serve mp3 player
-  //if (rtcTimeWasAlreadySetFromNTP == false) {
-    synchroniseTime();
-  //} else {
-  //  setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
-  // tzset();
-  //}
+  if (rtcTimeWasAlreadySetFromNTP == false) {
+    synchroniseExternalTime(); //but here we synchronise time from ntp and send it to both external and internal rtc
+    synchroniseInternalTime();
+    
+  } else {
+    //here we take time from external and synchronise the internal rtc
+    synchroniseInternalTime();
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
+   tzset();
+  }
 }
 
 void loop() {
@@ -110,7 +115,7 @@ void deepsleep(int sleepHelper) {
   Serial.println(myMin += sleepHelper);
   esp_deep_sleep_start();
 }
-void synchroniseTime() {
+void synchroniseExternalTime() {
   WiFi.begin(ssid, password);
   Serial.println("Looking for the WiFi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -119,8 +124,9 @@ void synchroniseTime() {
     // if wifi found, break loop
   }
   Serial.println("WiFi connected");
-  //---------set with NTP---------------
-  configTime(3600, 3600, "europe.pool.ntp.org");
+  //---------set with NTP--------------- 
+  // we have to rebuild this function to synchronise ext rtc
+  configTime(3600, 3600, "europe.pool.ntp.org");/
   struct tm timeinfo;
   if (getLocalTime(&timeinfo)) {
     rtc.setTimeStruct(timeinfo);
@@ -133,6 +139,9 @@ void synchroniseTime() {
   WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
   rtcTimeWasAlreadySetFromNTP = true;  // time was updated
   Serial.println("WiFi turned off");
+}
+void synchroniseInternalTime(){
+  //here we take time from external rtc and set the internal rtc
 }
 void startPlayer() {
   digitalWrite(4, HIGH);
