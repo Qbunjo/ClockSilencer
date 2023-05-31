@@ -22,15 +22,10 @@ void setup() {
   hwSerial.begin(9600, SERIAL_8N1, 16,
                  17);  // second serial port to serve mp3 player
   if (rtcTimeWasAlreadySetFromNTP == false) {
-    synchroniseExternalTime(); //but here we synchronise time from ntp and send it to both external and internal rtc
-    synchroniseInternalTime();
-    
-  } else {
-    //here we take time from external and synchronise the internal rtc
-    synchroniseInternalTime();
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 3);  // repair timezone
-   tzset();
-  }
+    synchroniseExternalTime(); 
+  } 
+    synchroniseInternalTime(); //everytime the machine runs, it updates internal RTC from external source
+
 }
 
 void loop() {
