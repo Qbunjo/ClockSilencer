@@ -1,12 +1,12 @@
 #include "DFPlayerMini_Fast.h"
 //#include "DFRobotDFPlayerMini.h"
 #include "HardwareSerial.h"
-#include <ESP32Time.h>
+//#include <ESP32Time.h> //we quit using this crappy internal RTC
 #include <WiFi.h>
-//#include external rtc ds3231
+#include <RTClib.h>
 
 
-ESP32Time rtc;
+RTC_DS3231 rtc;
 HardwareSerial hwSerial(1);
 DFPlayerMini_Fast myDFPlayer;
 //DFRobotDFPlayerMini myDFPlayer;
@@ -23,21 +23,31 @@ void setup() {
                  17);  // second serial port to serve mp3 player
   if (rtcTimeWasAlreadySetFromNTP == false) {
     synchroniseExternalTime(); 
-  } 
-    synchroniseInternalTime(); //everytime the machine runs, it updates internal RTC from external source
-
+  }
 }
 
 void loop() {
-
+  DateTime now = rtc.now();
   Serial.print("It is ");
-  Serial.println(
-    rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
-
-  myDow = rtc.getDayofWeek();
-  mySec = rtc.getSecond();
-  myMin = rtc.getMinute();
-  myHour = rtc.getHour(true);
+  //--------------------
+   Serial.print(now.year(), DEC);
+    Serial.print('/');
+    Serial.print(now.month(), DEC);
+    Serial.print('/');
+    Serial.print(now.day(), DEC);
+    Serial.print(' ');
+    Serial.print(now.hour(), DEC);
+    Serial.print(':');
+    Serial.print(now.minute(), DEC);
+    Serial.print(':');
+    Serial.print(now.second(), DEC);
+    Serial.println();
+    
+//==========================
+  myDow = now.dayOfTheWeek();
+  mySec = now.second();
+  myMin = now.minute();
+  myHour = now.hour();
   if (myMin > 31) {
     sleepHelper = 59 - myMin;
   } else {
@@ -62,8 +72,7 @@ void loop() {
     }
   }
 
-  struct tm timeinfo = rtc.getTimeStruct();
-
+  
   // -----deep sleep conditions--------
   if ((sleepHelper > 2)) {
     deepsleep(sleepHelper);
@@ -122,9 +131,11 @@ void synchroniseExternalTime() {
   //---------set with NTP--------------- 
   // we have to rebuild this function to synchronise ext rtc
   configTime(3600, 3600, "europe.pool.ntp.org");/
-  struct tm timeinfo;
+  //==== //this need to be modified to meet the requirements of RTClib
+    struct tm timeinfo;//
   if (getLocalTime(&timeinfo)) {
-    rtc.setTimeStruct(timeinfo);
+    rtc.setTimeStruct(timeinfo); 
+   // ====
   }
   Serial.println("Attempt to update RTC");
   while (rtc.getYear() == 1970) {
@@ -135,9 +146,7 @@ void synchroniseExternalTime() {
   rtcTimeWasAlreadySetFromNTP = true;  // time was updated
   Serial.println("WiFi turned off");
 }
-void synchroniseInternalTime(){
-  //here we take time from external rtc and set the internal rtc
-}
+
 void startPlayer() {
   digitalWrite(4, HIGH);
   Serial.println("Mosfet high");
