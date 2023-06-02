@@ -10,9 +10,12 @@ Much more elegant solution is having another electronic clock, that plays record
 - DFPlayer mini
 - micro SD card (a small one will be enough - 8gb or even less)
 - MOSFET transistor (it turns out that DFPlayer is power-hungry even if it sleeps, so it's better to cut its power)
+- DS3231 RTC 
+### Why not use ESP32's internal RTC?
+Because it turns out, when in deepsleep, internal RTC becomes inacurrate (like 5 minutes in 12 hours)
 
 ## Libraries:
-- ESP32Time - Runs built-in RTC
+- RTClib - runs DS3231 clock
 - HardwareSerial - as DFPlayer is driven by Serial port, second serial must be set.
 - DFPlayerMini_Fast - driver for DFPlayer Mini, but not from DFRobot :)
 - FireTimer (dependency of DFPlayer library)
