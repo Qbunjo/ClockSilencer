@@ -21,6 +21,11 @@ void setup() {
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16,
                  17);  // second serial port to serve mp3 player
+   if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
   if (rtcTimeWasAlreadySetFromNTP == false) {
     synchroniseExternalTime(); 
   }
@@ -131,16 +136,22 @@ void synchroniseExternalTime() {
   //---------set with NTP--------------- 
   // we have to rebuild this function to synchronise ext rtc
   configTime(3600, 3600, "europe.pool.ntp.org");/
-  //==== //this need to be modified to meet the requirements of RTClib
+  //==== //this need to be further modified to meet the requirements of RTClib
+    struct tm timeinfo;
+  getLocalTime(&timeinfo);
+
+  yr = timeinfo.tm_year + 1900;
+  mt = timeinfo.tm_mon + 1;
+  dy = timeinfo.tm_mday;
+  hr = timeinfo.tm_hour;
+  mi = timeinfo.tm_min;
+  se = timeinfo.tm_sec;
+
+  rtc.adjust(DateTime(yr, mt, dy, hr, mi, se));
     struct tm timeinfo;//
-  if (getLocalTime(&timeinfo)) {
-    rtc.setTimeStruct(timeinfo); 
-   // ====
-  }
+  
   Serial.println("Attempt to update RTC");
-  while (rtc.getYear() == 1970) {
-    Serial.println("RTC updating in progress");
-  }
+  
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
   rtcTimeWasAlreadySetFromNTP = true;  // time was updated
