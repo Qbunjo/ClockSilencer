@@ -17,6 +17,8 @@ int sleepHelper;
 
 void setup() {
   pinMode(4, OUTPUT);
+  pinMode(14,OUTPUT);
+  digitalWrite(14, HIGH);//give power to rtc
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17);  // second serial port to serve mp3 player
   if (!rtc.begin()) {
@@ -39,6 +41,14 @@ void loop() {
   mySec = now.second();
   myMin = now.minute();
   myHour = now.hour();
+Serial.print("It is ");
+Serial.print(myHour);
+Serial.print(":");
+Serial.print(myMin);
+Serial.print(":");
+Serial.println(mySec);
+
+
   if (myMin > 31) {
     sleepHelper = 59 - myMin;
   } else {
