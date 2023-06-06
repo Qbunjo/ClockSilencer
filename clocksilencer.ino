@@ -179,3 +179,15 @@ void startPlayer() {
   myDFPlayer.volume(25);
   delay(10);
 }
+DateTime grabTime(){
+  digitalWrite(14,HIGH);
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+    delay(10);
+    DateTime now = rtc.now();
+    digitalWrite(14,LOW);
+    ~rtc.begin();
+    return now;
+  }
+}
