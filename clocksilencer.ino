@@ -187,7 +187,6 @@ DateTime grabTime(){
     delay(10);
     DateTime now = rtc.now();
     digitalWrite(14,LOW);
-    ~rtc.begin();
     return now;
   }
 }
