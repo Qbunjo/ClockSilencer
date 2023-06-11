@@ -17,14 +17,11 @@ int sleepHelper;
 
 void setup() {
   pinMode(4, OUTPUT);
+  pinMode(14,OUTPUT);
+  //digitalWrite(14, HIGH);//give power to rtc
   Serial.begin(115200);
   hwSerial.begin(9600, SERIAL_8N1, 16, 17);  // second serial port to serve mp3 player
-  if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    while (1)
-      ;
-    delay(10);
-  }
+  
   if (rtcTimeWasAlreadySetFromNTP == false) {
     synchroniseExternalTime();
   }
@@ -32,19 +29,28 @@ void setup() {
 
 void loop() {
   //---this is serial output to make sure we have correct time
-  DateTime now = rtc.now();
+  //DateTime now = rtc.now();
+  DateTime now =grabTime();
   
   //--- here are regular conditions
   myDow = now.dayOfTheWeek();
   mySec = now.second();
   myMin = now.minute();
   myHour = now.hour();
+Serial.print("It is ");
+Serial.print(myHour);
+Serial.print(":");
+Serial.print(myMin);
+Serial.print(":");
+Serial.println(mySec);
+
+
   if (myMin > 31) {
     sleepHelper = 59 - myMin;
   } else {
     sleepHelper = 29 - myMin;
   };
-  if (mySec == 50 and sleepHelper == 0) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
+  if (myHour > 7 and myHour < 19 and mySec == 55 and sleepHelper == 0) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
     startPlayer();
   }
 
@@ -95,7 +101,7 @@ void ringer(int myhours2) {
   };
   digitalWrite(4, LOW);
   Serial.println("Mosfet low");
-  //maybe here rtc synchronisation?
+
 }
 void deepsleep(int sleepHelper) {
   int countMicro = ((sleepHelper - 1) * 1000000 * 60);
@@ -132,6 +138,8 @@ void synchroniseExternalTime() {
   int mi = timeinfo.tm_min;
   int se = timeinfo.tm_sec;
 
+  digitalWrite(14,HIGH);
+  rtc.begin();
   rtc.adjust(DateTime(yr, mt, dy, hr, mi, se));
 
   Serial.println("RTC updated");
@@ -154,6 +162,7 @@ void synchroniseExternalTime() {
   WiFi.mode(WIFI_OFF);                 // disconnect after synchronisation to save power
   rtcTimeWasAlreadySetFromNTP = true;  // time was updated
   Serial.println("WiFi turned off");
+  digitalWrite(14,LOW); //turn off power for RTC
 }
 
 void startPlayer() {
@@ -168,4 +177,15 @@ void startPlayer() {
   };  //initializing mp3 player
   myDFPlayer.volume(25);
   delay(10);
+}
+
+DateTime grabTime(){
+  digitalWrite(14,HIGH);
+  while (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+      delay(10);
+  }
+  DateTime now = rtc.now();
+  digitalWrite(14,LOW);
+  return now;
 }
