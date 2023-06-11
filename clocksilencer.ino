@@ -50,7 +50,7 @@ Serial.println(mySec);
   } else {
     sleepHelper = 29 - myMin;
   };
-  if (mySec == 50 and sleepHelper == 0) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
+  if (myHour > 7 and myHour < 19 and mySec == 55 and sleepHelper == 0) {  //according to the DFPlayer documentation, it needs 3-5 seconds to start
     startPlayer();
   }
 
@@ -181,10 +181,9 @@ void startPlayer() {
 
 DateTime grabTime(){
   digitalWrite(14,HIGH);
-  if (!rtc.begin()) {
+  while (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
-    while (1);
-    delay(10);
+      delay(10);
   }
   DateTime now = rtc.now();
   digitalWrite(14,LOW);
