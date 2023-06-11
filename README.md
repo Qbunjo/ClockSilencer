@@ -21,5 +21,4 @@ Because it turns out, when in deepsleep, internal RTC becomes inacurrate (like 5
 - FireTimer (dependency of DFPlayer library)
 
 ## Wiring:
-[![Fritzing ESP32 schema](Untitled%20Sketch_bb.png)](Untitled%20Sketch_bb.png)
-
+[![Fritzing ESP32 schema](fritzing/clocksilencer-small.png)](fritzing/clocksilencer.png)
